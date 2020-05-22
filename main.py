@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import itertools
+import time
 
 from flask import Flask, jsonify, request, render_template
 import os
@@ -90,6 +91,7 @@ wines_ref = db.collection('products').document('wines').collection('wines')
 promotions_ref = db.collection('products').document('promotions').collection('promotions')
 two_flavored_pizzas_ref = db.collection('products').document('two_flavored_pizzas').collection('two_flavored_pizzas')
 users_ref = db.collection('users')
+working_hours_ref = db.collection('workinghours')
 # get all the png files from the current folder
 # for infile in glob.glob("*.png"):
 # for infile in glob.glob("soft_drinks.png"):
@@ -169,6 +171,7 @@ def on_nab_snapshot(doc_snapshot, changes, read_time):
         # print(u'Document snapshot: {}'.format(doc.to_dict()))
         # product = Product.from_dict(doc.to_dict())
         images = non_alcoholic_beverages_ref.document(doc.id).collection('images').stream()
+        prices = non_alcoholic_beverages_ref.document(doc.id).collection('prices').stream()
         price_broto_stream = non_alcoholic_beverages_ref.document(doc.id).collection('prices').document('broto').get()
         price_inteira_stream = non_alcoholic_beverages_ref.document(doc.id).collection('prices').document(
             'inteira').get()
@@ -190,6 +193,12 @@ def on_nab_snapshot(doc_snapshot, changes, read_time):
             product.update({'image': image.to_dict().get('url', '')})
             # doc.collection('images').on_snapshot(on_nab_images_snapshot)
 
+        size_prices = {'prices': {}}
+
+        for size_id in prices:
+            size_prices['prices'][size_id.id] = size_id.to_dict()
+
+        product.update(size_prices)
         all_non_alcoholic_beverages.append(product)
 
 
@@ -202,6 +211,7 @@ def on_ab_snapshot(doc_snapshot, changes, read_time):
         # print(u'Document snapshot: {}'.format(doc.to_dict()))
         # product = Product.from_dict(doc.to_dict())
         images = alcoholic_beverages_ref.document(doc.id).collection('images').stream()
+        prices = alcoholic_beverages_ref.document(doc.id).collection('prices').stream()
         price_broto_stream = alcoholic_beverages_ref.document(doc.id).collection('prices').document('broto').get()
         price_inteira_stream = alcoholic_beverages_ref.document(doc.id).collection('prices').document('inteira').get()
 
@@ -222,6 +232,13 @@ def on_ab_snapshot(doc_snapshot, changes, read_time):
             product.update({'image': image.to_dict().get('url', '')})
             # doc.collection('images').on_snapshot(on_nab_images_snapshot)
 
+        size_prices = {'prices': {}}
+
+        for size_id in prices:
+            size_prices['prices'][size_id.id] = size_id.to_dict()
+
+        product.update(size_prices)
+
         all_alcoholic_beverages.append(product)
 
 
@@ -234,6 +251,7 @@ def on_beers_snapshot(doc_snapshot, changes, read_time):
         # print(u'Document snapshot: {}'.format(doc.to_dict()))
         # product = Product.from_dict(doc.to_dict())
         images = beers_ref.document(doc.id).collection('images').stream()
+        prices = beers_ref.document(doc.id).collection('prices').stream()
         price_broto_stream = beers_ref.document(doc.id).collection('prices').document('broto').get()
         price_inteira_stream = beers_ref.document(doc.id).collection('prices').document('inteira').get()
 
@@ -254,6 +272,13 @@ def on_beers_snapshot(doc_snapshot, changes, read_time):
             product.update({'image': image.to_dict().get('url', '')})
             # doc.collection('images').on_snapshot(on_nab_images_snapshot)
 
+        size_prices = {'prices': {}}
+
+        for size_id in prices:
+            size_prices['prices'][size_id.id] = size_id.to_dict()
+
+        product.update(size_prices)
+
         all_beers.append(product)
 
 
@@ -266,6 +291,7 @@ def on_candy_pizzas_snapshot(doc_snapshot, changes, read_time):
         # print(u'Document snapshot: {}'.format(doc.to_dict()))
         # product = Product.from_dict(doc.to_dict())
         images = candy_pizzas_ref.document(doc.id).collection('images').stream()
+        prices = candy_pizzas_ref.document(doc.id).collection('prices').stream()
         price_broto_stream = candy_pizzas_ref.document(doc.id).collection('prices').document('broto').get()
         price_inteira_stream = candy_pizzas_ref.document(doc.id).collection('prices').document('inteira').get()
 
@@ -286,6 +312,13 @@ def on_candy_pizzas_snapshot(doc_snapshot, changes, read_time):
             product.update({'image': image.to_dict().get('url', '')})
             # doc.collection('images').on_snapshot(on_nab_images_snapshot)
 
+        size_prices = {'prices': {}}
+
+        for size_id in prices:
+            size_prices['prices'][size_id.id] = size_id.to_dict()
+
+        product.update(size_prices)
+
         all_candy_pizzas.append(product)
 
 
@@ -298,6 +331,7 @@ def on_flapts_snapshot(doc_snapshot, changes, read_time):
         # print(u'Document snapshot: {}'.format(doc.to_dict()))
         # product = Product.from_dict(doc.to_dict())
         images = flapts_ref.document(doc.id).collection('images').stream()
+        prices = flapts_ref.document(doc.id).collection('prices').stream()
         price_broto_stream = flapts_ref.document(doc.id).collection('prices').document('broto').get()
         price_inteira_stream = flapts_ref.document(doc.id).collection('prices').document('inteira').get()
 
@@ -318,6 +352,13 @@ def on_flapts_snapshot(doc_snapshot, changes, read_time):
             product.update({'image': image.to_dict().get('url', '')})
             # doc.collection('images').on_snapshot(on_nab_images_snapshot)
 
+        size_prices = {'prices': {}}
+
+        for size_id in prices:
+            size_prices['prices'][size_id.id] = size_id.to_dict()
+
+        product.update(size_prices)
+
         all_flapts.append(product)
 
 
@@ -330,6 +371,7 @@ def on_pizza_edges_snapshot(doc_snapshot, changes, read_time):
         # print(u'Document snapshot: {}'.format(doc.to_dict()))
         # product = Product.from_dict(doc.to_dict())
         images = pizza_edges_ref.document(doc.id).collection('images').stream()
+        prices = pizza_edges_ref.document(doc.id).collection('prices').stream()
         price_broto_stream = pizza_edges_ref.document(doc.id).collection('prices').document('broto').get()
         price_inteira_stream = pizza_edges_ref.document(doc.id).collection('prices').document('inteira').get()
 
@@ -350,6 +392,13 @@ def on_pizza_edges_snapshot(doc_snapshot, changes, read_time):
             product.update({'image': image.to_dict().get('url', '')})
             # doc.collection('images').on_snapshot(on_nab_images_snapshot)
 
+        size_prices = {'prices': {}}
+
+        for size_id in prices:
+            size_prices['prices'][size_id.id] = size_id.to_dict()
+
+        product.update(size_prices)
+
         all_pizza_edges.append(product)
 
 
@@ -362,6 +411,7 @@ def on_traditional_pizzas_snapshot(doc_snapshot, changes, read_time):
         # print(u'Document snapshot: {}'.format(doc.to_dict()))
         # product = Product.from_dict(doc.to_dict())
         images = traditional_pizzas_ref.document(doc.id).collection('images').stream()
+        prices = traditional_pizzas_ref.document(doc.id).collection('prices').stream()
         price_broto_stream = traditional_pizzas_ref.document(doc.id).collection('prices').document('broto').get()
         price_inteira_stream = traditional_pizzas_ref.document(doc.id).collection('prices').document('inteira').get()
 
@@ -382,6 +432,13 @@ def on_traditional_pizzas_snapshot(doc_snapshot, changes, read_time):
             product.update({'image': image.to_dict().get('url', '')})
             # doc.collection('images').on_snapshot(on_nab_images_snapshot)
 
+        size_prices = {'prices': {}}
+
+        for size_id in prices:
+            size_prices['prices'][size_id.id] = size_id.to_dict()
+
+        product.update(size_prices)
+
         all_traditional_pizzas.append(product)
 
 
@@ -394,6 +451,7 @@ def on_gourmet_pizzas_snapshot(doc_snapshot, changes, read_time):
         # print(u'Document snapshot: {}'.format(doc.to_dict()))
         # product = Product.from_dict(doc.to_dict())
         images = gourmet_pizzas_ref.document(doc.id).collection('images').stream()
+        prices = gourmet_pizzas_ref.document(doc.id).collection('prices').stream()
         price_broto_stream = gourmet_pizzas_ref.document(doc.id).collection('prices').document('broto').get()
         price_inteira_stream = gourmet_pizzas_ref.document(doc.id).collection('prices').document('inteira').get()
 
@@ -414,6 +472,13 @@ def on_gourmet_pizzas_snapshot(doc_snapshot, changes, read_time):
             product.update({'image': image.to_dict().get('url', '')})
             # doc.collection('images').on_snapshot(on_nab_images_snapshot)
 
+        size_prices = {'prices': {}}
+
+        for size_id in prices:
+            size_prices['prices'][size_id.id] = size_id.to_dict()
+
+        product.update(size_prices)
+
         all_gourmet_pizzas.append(product)
 
 
@@ -426,6 +491,7 @@ def on_wines_snapshot(doc_snapshot, changes, read_time):
         # print(u'Document snapshot: {}'.format(doc.to_dict()))
         # product = Product.from_dict(doc.to_dict())
         images = wines_ref.document(doc.id).collection('images').stream()
+        prices = wines_ref.document(doc.id).collection('prices').stream()
         price_broto_stream = wines_ref.document(doc.id).collection('prices').document('broto').get()
         price_inteira_stream = wines_ref.document(doc.id).collection('prices').document('inteira').get()
 
@@ -446,6 +512,13 @@ def on_wines_snapshot(doc_snapshot, changes, read_time):
             product.update({'image': image.to_dict().get('url', '')})
             # doc.collection('images').on_snapshot(on_nab_images_snapshot)
 
+        size_prices = {'prices': {}}
+
+        for size_id in prices:
+            size_prices['prices'][size_id.id] = size_id.to_dict()
+
+        product.update(size_prices)
+
         all_wines.append(product)
 
 
@@ -458,6 +531,7 @@ def on_promotions_snapshot(doc_snapshot, changes, read_time):
         # print(u'Document snapshot: {}'.format(doc.to_dict()))
         # product = Product.from_dict(doc.to_dict())
         images = promotions_ref.document(doc.id).collection('images').stream()
+        prices = promotions_ref.document(doc.id).collection('prices').stream()
         price_broto_stream = promotions_ref.document(doc.id).collection('prices').document('broto').get()
         price_inteira_stream = promotions_ref.document(doc.id).collection('prices').document('inteira').get()
 
@@ -478,6 +552,13 @@ def on_promotions_snapshot(doc_snapshot, changes, read_time):
             product.update({'image': image.to_dict().get('url', '')})
             # doc.collection('images').on_snapshot(on_nab_images_snapshot)
 
+        size_prices = {'prices': {}}
+
+        for size_id in prices:
+            size_prices['prices'][size_id.id] = size_id.to_dict()
+
+        product.update(size_prices)
+
         all_promotions.append(product)
 
 
@@ -490,6 +571,7 @@ def on_two_flavored_pizzas_snapshot(doc_snapshot, changes, read_time):
         # print(u'Document snapshot: {}'.format(doc.to_dict()))
         # product = Product.from_dict(doc.to_dict())
         images = two_flavored_pizzas_ref.document(doc.id).collection('images').stream()
+        prices = two_flavored_pizzas_ref.document(doc.id).collection('prices').stream()
         price_broto_stream = two_flavored_pizzas_ref.document(doc.id).collection('prices').document('broto').get()
         price_inteira_stream = two_flavored_pizzas_ref.document(doc.id).collection('prices').document('inteira').get()
 
@@ -509,6 +591,13 @@ def on_two_flavored_pizzas_snapshot(doc_snapshot, changes, read_time):
         for image in images:
             product.update({'image': image.to_dict().get('url', '')})
             # doc.collection('images').on_snapshot(on_nab_images_snapshot)
+
+        size_prices = {'prices': {}}
+
+        for size_id in prices:
+            size_prices['prices'][size_id.id] = size_id.to_dict()
+
+        product.update(size_prices)
 
         all_two_flavored_pizzas.append(product)
 
@@ -664,13 +753,13 @@ def makeorder():
 
 
     startdata = {
-        u'id': u'{0}'.format(today)
+        u'id': u'{0}'.format(today[:-9])
     }
 
-    thisOrderRef = orders_ref.document(today)
+    thisOrderRef = orders_ref.document(today[:-9])
 
     thisOrderRef.set(startdata)
-    thisOrderRef = thisOrderRef.collection(today)
+    thisOrderRef = thisOrderRef.collection(today[:-9])
     order_ref_for_update = thisOrderRef
 
     # print("hoje é: {0}".format(today))
@@ -679,6 +768,8 @@ def makeorder():
         coupon_id = request.get_json().get('coupon_id')
         delivery = request.get_json().get('delivery')
         payment_method = request.get_json().get('payment_method')
+        payment_change = request.get_json().get('payment_change')
+        delivery_address = request.get_json().get('delivery_address')
         total = request.get_json().get('total')
         userId = request.get_json().get('userId')
         id = thisOrderRef.document().id
@@ -692,6 +783,8 @@ def makeorder():
             u'id': u'{}'.format(id),
             u'delivery': u'{}'.format(delivery),
             u'payment_method': u'{}'.format(payment_method),
+            u'payment_change': u'{}'.format(payment_change),
+            u'delivery_address': u'{}'.format(delivery_address),
             u'total': u'{}'.format(total),
             u'userId': u'{}'.format(userId)
         }
@@ -844,8 +937,14 @@ def makeorder():
             }
 
             total_paid += Decimal(paid_price)*Decimal(product.get("quantity"))
-            
+
             thisOrderRef.document(thisId).set(thisProduct)
+
+        delivery_tax_ref_snapshot = db.collection('delivery_tax').document('current_tax').get()
+        tax = delivery_tax_ref_snapshot.to_dict()['value']
+
+        if delivery_address.lower() != "retirada":
+            total_paid += Decimal(tax)
 
         order_ref_for_update.document(id).update({u'total': str(round(total_paid, 2))})
 
@@ -853,6 +952,14 @@ def makeorder():
         return jsonify({"success": True}), 200
     except Exception as e:
         return f"An Error Occured: {e}"
+
+
+@app.route('/get_working_hours', methods=['GET'])
+def get_working_hours():
+    week_day = request.args.get('weekDay')
+    docSnapshot = working_hours_ref.document(week_day).get()
+
+    return jsonify(docSnapshot.to_dict()), 200
 
 
 @app.route('/list_user_orders', methods=['GET'])
@@ -899,6 +1006,10 @@ def list_categories():
         todo : Return document that matches query ID
         all_todos : Return all documents
     """
+
+    while len(all_categories) == 0:
+        time.sleep(1)
+
     try:
         # Check if ID was passed to URL query
         cat_id = request.args.get('id')
@@ -928,6 +1039,10 @@ def create_user():
     name = request.form['name']
     email = request.form['email']
     phone = request.form['phone']
+    street = request.form['street']
+    streetNumber = request.form['streetNumber']
+    neighborhood = request.form['neighborhood']
+    city = request.form['city']
     imgUrl = request.form['img_url']
     isRegisterComplete = request.form['isRegisterComplete']
 
@@ -978,6 +1093,10 @@ def create_user():
         u'name': u'{}'.format(name),
         u'email': u'{}'.format(email),
         u'phone': u'{}'.format(phone),
+        u'street': u'{}'.format(street),
+        u'streetNumber': u'{}'.format(streetNumber),
+        u'neighborhood': u'{}'.format(neighborhood),
+        u'city': u'{}'.format(city),
         u'image_url': u'{}'.format(imgUrl),
         u'isRegisterComplete': u'{}'.format(isRegisterComplete),
     }
@@ -1019,6 +1138,10 @@ def list_non_alcoholic_beverages():
         todo : Return document that matches query ID
         all_todos : Return all documents
     """
+
+    while len(all_non_alcoholic_beverages) == 0:
+        time.sleep(1)
+
     try:
         # Check if ID was passed to URL query
         nab_id = request.args.get('id')
@@ -1043,6 +1166,10 @@ def list_alcoholic_beverages():
         todo : Return document that matches query ID
         all_todos : Return all documents
     """
+
+    while len(all_alcoholic_beverages) == 0:
+        time.sleep(1)
+
     try:
         # Check if ID was passed to URL query
         ab_id = request.args.get('id')
@@ -1067,6 +1194,10 @@ def list_beers():
         todo : Return document that matches query ID
         all_todos : Return all documents
     """
+
+    while len(all_beers) == 0:
+        time.sleep(1)
+
     try:
         # Check if ID was passed to URL query
         beer_id = request.args.get('id')
@@ -1091,6 +1222,10 @@ def list_candy_pizzas():
         todo : Return document that matches query ID
         all_todos : Return all documents
     """
+
+    while len(all_candy_pizzas) == 0:
+        time.sleep(1)
+
     try:
         # Check if ID was passed to URL query
         candypizza_id = request.args.get('id')
@@ -1115,6 +1250,10 @@ def list_flapts():
         todo : Return document that matches query ID
         all_todos : Return all documents
     """
+
+    while len(all_flapts) == 0:
+        time.sleep(1)
+
     try:
         # Check if ID was passed to URL query
         flapts_id = request.args.get('id')
@@ -1139,6 +1278,10 @@ def list_pizza_edges():
         todo : Return document that matches query ID
         all_todos : Return all documents
     """
+
+    while len(all_pizza_edges) == 0:
+        time.sleep(1)
+
     try:
         # Check if ID was passed to URL query
         pizza_edge_id = request.args.get('id')
@@ -1156,6 +1299,83 @@ def list_pizza_edges():
         return f"An Error Occured: {e}"
 
 
+@app.route('/list_products', methods=['GET'])
+def list_products():
+    """
+        read() : Fetches documents from Firestore collection as JSON
+        todo : Return document that matches query ID
+        all_todos : Return all documents
+    """
+    # while len(all_traditional_pizzas) == 0:
+    #     time.sleep(1)
+
+    try:
+        # Check if ID was passed to URL query
+        product_id = request.args.get('id')
+        category_id = request.args.get('category_id')
+
+        all_items = []
+        if category_id == "beers":
+            while len(all_beers) == 0:
+                time.sleep(1)
+            all_items.extend(all_beers)
+        elif category_id == "alcoholic_beverages":
+            while len(all_alcoholic_beverages) == 0:
+                time.sleep(1)
+            all_items.extend(all_alcoholic_beverages)
+        elif category_id == "flapts":
+            while len(all_flapts) == 0:
+                time.sleep(1)
+            all_items.extend(all_flapts)
+        elif category_id == "non_alcoholic_beverages":
+            while len(all_non_alcoholic_beverages) == 0:
+                time.sleep(1)
+            all_items.extend(all_non_alcoholic_beverages)
+        elif category_id == "promotions":
+            while len(all_promotions) == 0:
+                time.sleep(1)
+            all_items.extend(all_promotions)
+        elif category_id == "wines":
+            while len(all_wines) == 0:
+                time.sleep(1)
+            all_items.extend(all_wines)
+        elif category_id == "candy_pizzas":
+            while len(all_candy_pizzas) == 0:
+                time.sleep(1)
+            all_items.extend(all_candy_pizzas)
+        elif category_id == "gourmet_pizzas":
+            while len(all_gourmet_pizzas) == 0:
+                time.sleep(1)
+            all_items.extend(all_gourmet_pizzas)
+        elif category_id == "traditional_pizzas":
+            while len(all_traditional_pizzas) == 0:
+                time.sleep(1)
+            all_items.extend(all_traditional_pizzas)
+        elif category_id == "pizza_edges":
+            while len(all_pizza_edges) == 0:
+                time.sleep(1)
+            all_items.extend(all_pizza_edges)
+        elif category_id == "two_flavored_pizzas":
+            while len(all_two_flavored_pizzas) == 0:
+                time.sleep(1)
+            all_items.extend(all_two_flavored_pizzas)
+
+        if product_id:
+            product = object
+            for element in all_items:
+                if element['id'] == product_id:
+                    product = element
+            # nab = non_alcoholic_beverages_ref.document(nab_id).get()
+            return jsonify(product), 200
+        else:
+            # all_nab = [doc.to_dict() for doc in non_alcoholic_beverages_ref.stream()]
+            return jsonify(all_items), 200
+
+
+    except Exception as e:
+        return f"An Error Occured: {e}"
+
+
 @app.route('/list_traditional_pizzas', methods=['GET'])
 def list_traditional_pizzas():
     """
@@ -1163,6 +1383,9 @@ def list_traditional_pizzas():
         todo : Return document that matches query ID
         all_todos : Return all documents
     """
+    while len(all_traditional_pizzas) == 0:
+        time.sleep(1)
+
     try:
         # Check if ID was passed to URL query
         trad_pizza_id = request.args.get('id')
@@ -1187,6 +1410,9 @@ def list_gourmet_pizzas():
         todo : Return document that matches query ID
         all_todos : Return all documents
     """
+    while len(all_gourmet_pizzas) == 0:
+        time.sleep(1)
+
     try:
         # Check if ID was passed to URL query
         gourmet_pizza_id = request.args.get('id')
@@ -1211,6 +1437,10 @@ def list_wines():
         todo : Return document that matches query ID
         all_todos : Return all documents
     """
+
+    while len(all_wines) == 0:
+        time.sleep(1)
+
     try:
         # Check if ID was passed to URL query
         wine_id = request.args.get('id')
@@ -1235,6 +1465,9 @@ def list_promotions():
         todo : Return document that matches query ID
         all_todos : Return all documents
     """
+    while len(all_promotions) == 0:
+        time.sleep(1)
+
     try:
         # Check if ID was passed to URL query
         promotion_id = request.args.get('id')
@@ -1259,6 +1492,10 @@ def list_two_flavored_pizzas():
         todo : Return document that matches query ID
         all_todos : Return all documents
     """
+
+    while len(all_two_flavored_pizzas) == 0:
+        time.sleep(1)
+
     try:
         # Check if ID was passed to URL query
         two_flavored_pizza_id = request.args.get('id')
